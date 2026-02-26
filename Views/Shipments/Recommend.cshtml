@@ -1,0 +1,42 @@
+@model IEnumerable<DHLManagementSystem.Models.Trip>
+
+<h2>Recommended Trips</h2>
+
+<h4>Shipment Details</h4>
+<p>
+    Origin: @ViewBag.Shipment.Origin <br />
+    Destination: @ViewBag.Shipment.Destination <br />
+    Weight: @ViewBag.Shipment.Weight <br />
+    Deadline: @ViewBag.Shipment.DeliveryDeadline
+</p>
+
+<hr />
+
+@if (!Model.Any())
+{
+    <p>No suitable trips found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Route</th>
+                <th>Departure</th>
+                <th>Vehicle</th>
+                <th>Remaining Capacity</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var trip in Model)
+        {
+            <tr>
+                <td>@trip?.TransportRoute?.Origin → @trip?.TransportRoute?.Destination</td>
+                <td>@trip?.DepartureTime</td>
+                <td>@trip?.Vehicle?.PlateNumber</td>
+                <td>@trip?.RemainingCapacity</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

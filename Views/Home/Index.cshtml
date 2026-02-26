@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="mb-4">
+    <h2 class="mb-0">Operations Dashboard</h2>
+    <small class="text-muted">Real-time overview of transport and fleet activity</small>
+</div>
+
+<!-- KPI ROW -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <small class="text-muted">Fleet Status</small>
+                <h3 class="fw-semibold mt-2">Vehicles</h3>
+                <div class="text-muted">View availability & maintenance</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <small class="text-muted">Driver Readiness</small>
+                <h3 class="fw-semibold mt-2">Drivers</h3>
+                <div class="text-muted">Manage personnel allocation</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <small class="text-muted">Scheduled Trips</small>
+                <h3 class="fw-semibold mt-2">Trips</h3>
+                <div class="text-muted">Departures & capacity</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <small class="text-muted">Shipment Workflow</small>
+                <h3 class="fw-semibold mt-2">Shipments</h3>
+                <div class="text-muted">Pending & assigned deliveries</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SECOND ROW -->
+<div class="row g-4">
+
+    <!-- Activity Panel -->
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="mb-3">Operational Summary</h6>
+
+                <div class="border rounded p-3 mb-3 bg-light">
+                    Fleet operating within normal parameters.
+                </div>
+
+                <div class="border rounded p-3 mb-3 bg-light">
+                    No critical maintenance alerts.
+                </div>
+
+                <div class="border rounded p-3 bg-light">
+                    Shipment assignments pending review.
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="mb-3">System Status</h6>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Database</span>
+                    <span class="badge bg-success-subtle text-success">Online</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Dispatch Module</span>
+                    <span class="badge bg-success-subtle text-success">Active</span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <span>Recommendation Engine</span>
+                    <span class="badge bg-secondary-subtle text-secondary">Idle</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,142 @@
+@model IEnumerable<DHLManagementSystem.Models.Trip>
+
+@{
+    ViewData["Title"] = "Scheduled Trips";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Scheduled Trips</h2>
+        <small class="text-muted">Transport planning and operational departures</small>
+    </div>
+
+    <a asp-action="Create" class="btn btn-dark">
+        + Schedule Trip
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:20%">Departure</th>
+                    <th style="width:20%">Route</th>
+                    <th>Vehicle</th>
+                    <th style="width:15%">Capacity</th>
+                    <th style="width:15%">Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <!-- DEPARTURE -->
+                        <td>
+                            <div class="fw-semibold">
+                                @item.DepartureTime.ToString("ddd, dd MMM")
+                            </div>
+                            <small class="text-muted">
+                                @item.DepartureTime.ToString("HH:mm")
+                            </small>
+                        </td>
+
+                        <!-- ROUTE -->
+                        <td>
+                            <div class="fw-semibold">
+                                @item?.TransportRoute?.Origin
+                                <span class="text-muted mx-2">→</span>
+                                @item?.TransportRoute?.Destination
+                            </div>
+                            <small class="text-muted">
+                                Route ID: @item?.TransportRoute?.Id
+                            </small>
+                        </td>
+
+                        <!-- VEHICLE -->
+                        <td class="fw-semibold">
+                            @item?.Vehicle?.PlateNumber
+                        </td>
+
+                        <!-- CAPACITY -->
+                        <td>
+                            <div class="small text-muted mb-1">
+                                @item?.RemainingCapacity remaining
+                            </div>
+
+                            <div class="progress" style="height:6px;">
+                                <div class="progress-bar bg-secondary"
+                                     style="width:50%">
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- STATUS -->
+                        <td>
+                            @{
+                                var status = item?.Status?.ToLower();
+                            }
+
+                            @if (status == "scheduled")
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary">
+                                    Scheduled
+                                </span>
+                            }
+                            else if (status == "departed")
+                            {
+                                <span class="badge bg-warning-subtle text-warning">
+                                    Departed
+                                </span>
+                            }
+                            else if (status == "completed")
+                            {
+                                <span class="badge bg-success-subtle text-success">
+                                    Completed
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-light text-dark">
+                                    @item?.Status
+                                </span>
+                            }
+                        </td>
+
+                        <!-- ACTIONS -->
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@item?.Id"
+                               class="btn btn-sm btn-outline-secondary me-1">
+                                Edit
+                            </a>
+
+                            <a asp-action="Details" asp-route-id="@item?.Id"
+                               class="btn btn-sm btn-outline-dark me-1">
+                                View
+                            </a>
+
+                            <a asp-action="Delete" asp-route-id="@item?.Id"
+                               class="btn btn-sm btn-outline-danger">
+                                Remove
+                            </a>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center p-5 text-muted">
+        No trips scheduled yet.
+    </div>
+}

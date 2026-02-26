@@ -1,0 +1,199 @@
+@model IEnumerable<DHLManagementSystem.Models.Shipment>
+
+@{
+    ViewData["Title"] = "Shipments";
+
+    var pending = Model.Where(s => (s.Status ?? "").ToLower().Contains("pending"));
+    var assigned = Model.Where(s => (s.Status ?? "").ToLower().Contains("assigned"));
+    var inTransit = Model.Where(s => (s.Status ?? "").ToLower().Contains("transit"));
+    var delivered = Model.Where(s => (s.Status ?? "").ToLower().Contains("delivered"));
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Shipment Workflow</h2>
+        <small class="text-muted">Manage routing, scheduling and delivery progression</small>
+    </div>
+
+    <div>
+        <button class="btn btn-outline-dark me-2" onclick="showKanban()">Kanban View</button>
+        <button class="btn btn-dark" onclick="showTable()">Table View</button>
+        <a asp-action="Create" class="btn btn-secondary ms-3">
+            + New Shipment
+        </a>
+    </div>
+</div>
+
+<!-- ===================== KANBAN BOARD ===================== -->
+<div id="kanbanView" class="mb-5">
+
+    <div class="row g-4">
+
+        @* Column Template *@
+        @foreach (var column in new[] {
+            new { Title = "Pending", Data = pending },
+            new { Title = "Assigned", Data = assigned },
+            new { Title = "In Transit", Data = inTransit },
+            new { Title = "Delivered", Data = delivered }
+        })
+        {
+            <div class="col-md-3">
+                <div class="bg-light rounded p-3 h-100">
+                    <h6 class="fw-semibold mb-3">
+                        @column.Title
+                        <span class="badge bg-secondary ms-2">
+                            @column.Data.Count()
+                        </span>
+                    </h6>
+
+                    @foreach (var item in column.Data)
+                    {
+                        <div class="card shadow-sm mb-3 border-0">
+                            <div class="card-body">
+
+                                <div class="fw-semibold mb-1">
+                                    @item.Origin → @item.Destination
+                                </div>
+
+                                <div class="small text-muted mb-2">
+                                    @item.Weight kg
+                                </div>
+
+                                <div class="small text-muted mb-3">
+                                    Deadline: @item.DeliveryDeadline.ToString("dd MMM HH:mm")
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="Recommend"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-dark">
+                                        Recommend
+                                    </a>
+
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-secondary">
+                                        View
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<!-- ===================== TABLE VIEW ===================== -->
+<div id="tableView">
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:20%">Route</th>
+                        <th style="width:12%">Weight</th>
+                        <th style="width:18%">Deadline</th>
+                        <th style="width:15%">Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <div class="fw-semibold">
+                                    @item.Origin
+                                    <span class="text-muted mx-2">→</span>
+                                    @item.Destination
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="fw-semibold">@item.Weight</span>
+                                <small class="text-muted">kg</small>
+                            </td>
+
+                            <td>
+                                <div class="fw-semibold">
+                                    @item.DeliveryDeadline.ToString("ddd, dd MMM")
+                                </div>
+                                <small class="text-muted">
+                                    @item.DeliveryDeadline.ToString("HH:mm")
+                                </small>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-light text-dark">
+                                    @item.Status
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+
+                                <a asp-action="Recommend" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-dark me-1">
+                                    Recommend
+                                </a>
+
+                                <a asp-action="Edit" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-secondary me-1">
+                                    Edit
+                                </a>
+
+                                <a asp-action="Details" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-secondary me-1">
+                                    View
+                                </a>
+
+                                <a asp-action="Delete" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-danger">
+                                    Remove
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center p-5 text-muted">
+        No shipments recorded yet.
+    </div>
+}
+
+@section Scripts {
+<script>
+    function showKanban() {
+        document.getElementById("kanbanView").style.display = "block";
+        document.getElementById("tableView").style.display = "none";
+    }
+
+    function showTable() {
+        document.getElementById("kanbanView").style.display = "none";
+        document.getElementById("tableView").style.display = "block";
+    }
+
+    // Default view
+    showKanban();
+</script>
+}

@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DHL Management System</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background-color: #1f2937;
+        }
+
+        .sidebar a {
+            color: #e5e7eb;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .sidebar a:hover {
+            background-color: #374151;
+        }
+
+        .sidebar .section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-top: 20px;
+            color: #9ca3af;
+        }
+
+        .topbar {
+            background-color: white;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 20px;
+        }
+
+        .content-area {
+            padding: 25px;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="d-flex">
+
+    <!-- Sidebar -->
+    <div class="sidebar p-3">
+        <h4 class="text-white mb-4">DHL Dispatch</h4>
+
+        <a asp-controller="Home" asp-action="Index">Dashboard</a>
+
+        @if (User.IsInRole("Dispatcher"))
+        {
+            <div class="section-title">Fleet</div>
+            <a asp-controller="Vehicles" asp-action="Index">Vehicles</a>
+            <a asp-controller="Drivers" asp-action="Index">Drivers</a>
+
+            <div class="section-title">Operations</div>
+            <a asp-controller="Routes" asp-action="Index">Routes</a>
+            <a asp-controller="Trips" asp-action="Index">Trips</a>
+            <a asp-controller="Shipments" asp-action="Index">Shipments</a>
+
+            <div class="section-title">Decision Support</div>
+            <a asp-controller="Recommendations" asp-action="Index">Recommendations</a>
+        }
+    </div>
+
+    <!-- Main Area -->
+    <div class="d-flex flex-column flex-grow-1">
+
+        <!-- Top Bar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div>
+                <strong>@ViewData["Title"]</strong>
+            </div>
+
+            <div>
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <span class="me-3">Hello, @User.Identity.Name</span>
+                    <a class="btn btn-outline-danger btn-sm" href="/Identity/Account/Logout">Logout</a>
+                }
+                else
+                {
+                    <a class="btn btn-outline-primary btn-sm" href="/Identity/Account/Login">Login</a>
+                }
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area">
+            @RenderBody()
+        </div>
+
+    </div>
+
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
