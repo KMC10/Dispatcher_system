@@ -206,5 +206,44 @@ public async Task<IActionResult> UpdateStatus(int id, string newStatus)
     ViewBag.Shipment = shipment;
     return View(recommendedTrips);
 }
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Assign(int shipmentId, int tripId)
+{
+    var shipment = await _context.Shipments.FindAsync(shipmentId);
+    var trip = await _context.Trips.FindAsync(tripId);
+
+    if (shipment == null || trip == null)
+        return NotFound();
+
+    // Prevent double assignment
+    bool alreadyAssigned = _context.ShipmentAssignments
+        .Any(a => a.ShipmentId == shipmentId);
+
+    if (alreadyAssigned)
+        return BadRequest("Shipment already assigned.");
+
+    if (trip.RemainingCapacity < shipment.Weight)
+        return BadRequest("Not enough capacity.");
+
+    // Reduce capacity
+    trip.RemainingCapacity -= (int)shipment.Weight;
+
+    // Update shipment status
+    shipment.Status = "Assigned";
+
+    // Create assignment record
+    var assignment = new ShipmentAssignment
+    {
+        ShipmentId = shipmentId,
+        TripId = tripId
+    };
+
+    _context.ShipmentAssignments.Add(assignment);
+
+    await _context.SaveChangesAsync();
+
+    return RedirectToAction(nameof(Index));
+}
     }
 }

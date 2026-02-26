@@ -25,6 +25,7 @@ else
                 <th>Departure</th>
                 <th>Vehicle</th>
                 <th>Remaining Capacity</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +36,16 @@ else
                 <td>@trip?.DepartureTime</td>
                 <td>@trip?.Vehicle?.PlateNumber</td>
                 <td>@trip?.RemainingCapacity</td>
+                <td>
+                <form asp-action="Assign" asp-controller="Shipments" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="shipmentId" value="@ViewBag.Shipment.Id" />
+                <input type="hidden" name="tripId" value="@trip?.Id" />
+                <button type="submit" class="btn btn-sm btn-success">
+                    Assign
+                </button>
+            </form>
+</td>
             </tr>
         }
         </tbody>

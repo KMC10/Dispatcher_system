@@ -163,6 +163,28 @@ namespace DHLManagementSystem.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+            public async Task<IActionResult> Assign(int shipmentId, int tripId)
+        {
+            var shipment = await _context.Shipments.FindAsync(shipmentId);
+            var trip = await _context.Trips.FindAsync(tripId);
+
+            if (shipment == null || trip == null)
+                return NotFound();
+
+            if (trip.RemainingCapacity < shipment.Weight)
+                return BadRequest("Not enough capacity.");
+
+            // Reduce capacity
+            trip.RemainingCapacity -= (int)shipment.Weight;
+
+            // Update shipment status
+            shipment.Status = "Assigned";
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
 
         private bool TripExists(int id)
         {

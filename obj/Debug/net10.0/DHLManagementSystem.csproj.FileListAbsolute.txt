@@ -429,3 +429,4 @@
 /Users/user/C_Sharp/Limko_project/DHLManagementSystem/bin/Debug/net10.0/runtimes/win-arm64/native/Microsoft.Data.SqlClient.SNI.dll
 /Users/user/C_Sharp/Limko_project/DHLManagementSystem/bin/Debug/net10.0/runtimes/win-x64/native/Microsoft.Data.SqlClient.SNI.dll
 /Users/user/C_Sharp/Limko_project/DHLManagementSystem/bin/Debug/net10.0/runtimes/win-x86/native/Microsoft.Data.SqlClient.SNI.dll
+/Users/user/C_Sharp/Limko_project/DHLManagementSystem/obj/Debug/net10.0/DHLManagementSystem.sourcelink.json
