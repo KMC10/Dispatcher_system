@@ -4,7 +4,7 @@ using DHLManagementSystem.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Use connection string from appsettings.json
+// Connection string from appsettings.json
 var connectionString = builder.Configuration
     .GetConnectionString("ApplicationDbContextConnection");
 
@@ -23,6 +23,8 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
+
+// Middleware
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
@@ -35,15 +37,19 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 
-// 🔹 SEED ROLES (Dispatcher & Driver)
-// 🔹 SEED ROLES + ASSIGN DISPATCHER
+// 🔹 DATABASE MIGRATION + ROLE SEEDING
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
+    var context = services.GetRequiredService<ApplicationDbContext>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
+    // Ensure database exists
+    context.Database.Migrate();
+
+    // Roles to create
     string[] roles = { "Dispatcher", "Driver" };
 
     foreach (var role in roles)
@@ -54,13 +60,17 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Assign Dispatcher role to your email
+    // Assign Dispatcher role to specific user
     string dispatcherEmail = "khulanikmc@gmail.com";
+
     var user = await userManager.FindByEmailAsync(dispatcherEmail);
 
-    if (user != null && !await userManager.IsInRoleAsync(user, "Dispatcher"))
+    if (user != null)
     {
-        await userManager.AddToRoleAsync(user, "Dispatcher");
+        if (!await userManager.IsInRoleAsync(user, "Dispatcher"))
+        {
+            await userManager.AddToRoleAsync(user, "Dispatcher");
+        }
     }
 }
 
