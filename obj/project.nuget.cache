@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "A5fLPmc7P2Y=",
+  "dgSpecHash": "iZ6mVb9iOv4=",
   "success": true,
   "projectFilePath": "/Users/user/C_Sharp/Limko_project/DHLManagementSystem/DHLManagementSystem.csproj",
   "expectedPackageFiles": [
@@ -144,10 +144,7 @@
     "/Users/user/.nuget/packages/system.text.json/7.0.3/system.text.json.7.0.3.nupkg.sha512",
     "/Users/user/.nuget/packages/system.threading.channels/7.0.0/system.threading.channels.7.0.0.nupkg.sha512",
     "/Users/user/.nuget/packages/system.threading.tasks.dataflow/7.0.0/system.threading.tasks.dataflow.7.0.0.nupkg.sha512",
-    "/Users/user/.nuget/packages/system.windows.extensions/7.0.0/system.windows.extensions.7.0.0.nupkg.sha512",
-    "/Users/user/.nuget/packages/microsoft.netcore.app.ref/8.0.24/microsoft.netcore.app.ref.8.0.24.nupkg.sha512",
-    "/Users/user/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.24/microsoft.aspnetcore.app.ref.8.0.24.nupkg.sha512",
-    "/Users/user/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.24/microsoft.netcore.app.host.osx-arm64.8.0.24.nupkg.sha512"
+    "/Users/user/.nuget/packages/system.windows.extensions/7.0.0/system.windows.extensions.7.0.0.nupkg.sha512"
   ],
   "logs": []
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DHLManagementSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d46ffc4d7704f39d59658506e4c0748951480d90")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6c2b386ef2f88c10b272d1ab373612df4f3f68e")]
 [assembly: System.Reflection.AssemblyProductAttribute("DHLManagementSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DHLManagementSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
