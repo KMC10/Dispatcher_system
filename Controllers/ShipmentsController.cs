@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using DHLManagementSystem.Data;
 using DHLManagementSystem.Models;
-using Microsoft.AspNetCore.Authorization;
-
 
 namespace DHLManagementSystem.Controllers
 {
-    [Authorize(Roles = "Dispatcher")]
+    [Authorize] // or [Authorize(Roles = "Dispatcher")] if you want role restriction
     public class ShipmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,228 +16,55 @@ namespace DHLManagementSystem.Controllers
             _context = context;
         }
 
-        // GET: Shipments
+        // Example Index method
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Shipments.ToListAsync());
+            var shipments = await _context.Shipments.ToListAsync();
+            return View(shipments);
         }
 
-        // GET: Shipments/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var shipment = await _context.Shipments
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-            return View(shipment);
-        }
-
-        // GET: Shipments/Create
+        // Example Create method
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Shipments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // Assign shipment to trip
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Origin,Destination,Weight,DeliveryDeadline,Status")] Shipment shipment)
+        [Authorize(Roles = "Dispatcher")]
+        public async Task<IActionResult> Assign(int shipmentId, int tripId)
         {
-            if (ModelState.IsValid)
-            {
-                shipment.Status = "Registered";
-                _context.Add(shipment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(shipment);
-        }
-        [HttpPost]
-public async Task<IActionResult> UpdateStatus(int id, string newStatus)
-{
-    var shipment = await _context.Shipments.FindAsync(id);
+            var shipment = await _context.Shipments.FindAsync(shipmentId);
+            var trip = await _context.Trips.FindAsync(tripId);
 
-    if (shipment == null)
-        return NotFound();
-
-    // Allowed transitions
-    var validTransitions = new Dictionary<string, string[]>
-    {
-        { "Registered", new[] { "Evaluated" } },
-        { "Evaluated", new[] { "Assigned" } },
-        { "Assigned", new[] { "In Transit" } },
-        { "In Transit", new[] { "Delivered" } }
-    };
-
-    if (validTransitions.ContainsKey(shipment.Status) &&
-        validTransitions[shipment.Status].Contains(newStatus))
-    {
-        shipment.Status = newStatus;
-        await _context.SaveChangesAsync();
-    }
-
-    return RedirectToAction(nameof(Index));
-}
-
-        // GET: Shipments/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
+            if (shipment == null || trip == null)
                 return NotFound();
-            }
 
-            var shipment = await _context.Shipments.FindAsync(id);
-            if (shipment == null)
+            bool alreadyAssigned = await _context.ShipmentAssignments
+                .AnyAsync(a => a.ShipmentId == shipmentId);
+
+            if (alreadyAssigned)
+                return BadRequest("Shipment already assigned.");
+
+            if (trip.RemainingCapacity < shipment.Weight)
+                return BadRequest("Not enough capacity.");
+
+            trip.RemainingCapacity -= (int)shipment.Weight;
+            shipment.Status = "Assigned";
+
+            var assignment = new ShipmentAssignment
             {
-                return NotFound();
-            }
-            return View(shipment);
-        }
+                ShipmentId = shipmentId,
+                TripId = tripId
+            };
 
-        // POST: Shipments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Origin,Destination,Weight,DeliveryDeadline,Status")] Shipment shipment)
-        {
-            if (id != shipment.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(shipment);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ShipmentExists(shipment.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(shipment);
-        }
-
-        // GET: Shipments/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var shipment = await _context.Shipments
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-            return View(shipment);
-        }
-
-        // POST: Shipments/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var shipment = await _context.Shipments.FindAsync(id);
-            if (shipment != null)
-            {
-                _context.Shipments.Remove(shipment);
-            }
-
+            _context.ShipmentAssignments.Add(assignment);
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ShipmentExists(int id)
-        {
-            return _context.Shipments.Any(e => e.Id == id);
-        }
-        public async Task<IActionResult> Recommend(int id)
-{
-    var shipment = await _context.Shipments.FindAsync(id);
-
-    if (shipment == null)
-        return NotFound();
-
-    var recommendedTrips = _context.Trips
-        .Include(t => t.Vehicle)
-        .Include(t => t.TransportRoute)
-        .Where(t =>
-          t.TransportRoute != null &&
-            t.TransportRoute.Origin == shipment.Origin &&
-            t.TransportRoute.Destination == shipment.Destination &&
-            t.RemainingCapacity >= shipment.Weight &&
-            t.Status == "Scheduled" &&
-            t.DepartureTime <= shipment.DeliveryDeadline
-        )
-        .ToList();
-
-    ViewBag.Shipment = shipment;
-    return View(recommendedTrips);
-}
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Assign(int shipmentId, int tripId)
-{
-    var shipment = await _context.Shipments.FindAsync(shipmentId);
-    var trip = await _context.Trips.FindAsync(tripId);
-
-    if (shipment == null || trip == null)
-        return NotFound();
-
-    // Prevent double assignment
-    bool alreadyAssigned = _context.ShipmentAssignments
-        .Any(a => a.ShipmentId == shipmentId);
-
-    if (alreadyAssigned)
-        return BadRequest("Shipment already assigned.");
-
-    if (trip.RemainingCapacity < shipment.Weight)
-        return BadRequest("Not enough capacity.");
-
-    // Reduce capacity
-    trip.RemainingCapacity -= (int)shipment.Weight;
-
-    // Update shipment status
-    shipment.Status = "Assigned";
-
-    // Create assignment record
-    var assignment = new ShipmentAssignment
-    {
-        ShipmentId = shipmentId,
-        TripId = tripId
-    };
-
-    _context.ShipmentAssignments.Add(assignment);
-
-    await _context.SaveChangesAsync();
-
-    return RedirectToAction(nameof(Index));
-}
+        // Other methods...
     }
 }

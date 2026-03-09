@@ -10,11 +10,10 @@
 using System;
 using System.Reflection;
 
-[assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("DHLManagementSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b4cdbc60c1c7d6877d7a7d403462e9c1bf0ba2e1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d46ffc4d7704f39d59658506e4c0748951480d90")]
 [assembly: System.Reflection.AssemblyProductAttribute("DHLManagementSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DHLManagementSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
