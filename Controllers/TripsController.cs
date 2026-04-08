@@ -65,15 +65,18 @@ namespace DHLManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
+                // 🔥 FIX: Convert to UTC
+                trip.DepartureTime = DateTime.SpecifyKind(trip.DepartureTime, DateTimeKind.Utc);
+
                 _context.Add(trip);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["TransportRouteId"] = new SelectList(_context.Routes, "Id", "Id", trip.TransportRouteId);
             ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "PlateNumber", trip.VehicleId);
             return View(trip);
         }
-
         // GET: Trips/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -108,6 +111,9 @@ namespace DHLManagementSystem.Controllers
             {
                 try
                 {
+                    // 🔥 FIX: Convert to UTC
+                    trip.DepartureTime = DateTime.SpecifyKind(trip.DepartureTime, DateTimeKind.Utc);
+
                     _context.Update(trip);
                     await _context.SaveChangesAsync();
                 }
@@ -124,6 +130,7 @@ namespace DHLManagementSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["TransportRouteId"] = new SelectList(_context.Routes, "Id", "Id", trip.TransportRouteId);
             ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "PlateNumber", trip.VehicleId);
             return View(trip);
@@ -164,7 +171,7 @@ namespace DHLManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
         [HttpPost]
-            public async Task<IActionResult> Assign(int shipmentId, int tripId)
+        public async Task<IActionResult> Assign(int shipmentId, int tripId)
         {
             var shipment = await _context.Shipments.FindAsync(shipmentId);
             var trip = await _context.Trips.FindAsync(tripId);

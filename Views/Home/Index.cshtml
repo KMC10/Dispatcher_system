@@ -2,6 +2,13 @@
     ViewData["Title"] = "Dashboard";
 }
 
+@if (TempData["RecommendationMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["RecommendationMessage"]
+    </div>
+}
+
 <div class="mb-4">
     <h2 class="mb-0">Operations Dashboard</h2>
     <small class="text-muted">Real-time overview of transport and fleet activity</small>
@@ -69,9 +76,33 @@
                     No critical maintenance alerts.
                 </div>
 
-                <div class="border rounded p-3 bg-light">
-                    Shipment assignments pending review.
-                </div>
+                @if (ViewBag.PendingShipments != null && ViewBag.PendingShipments.Count > 0)
+                {
+                    <div class="border rounded p-3 bg-warning-subtle">
+                        <strong>Pending Shipment Recommendations:</strong>
+
+                        <ul class="mt-2 mb-0">
+                            @foreach (var shipment in ViewBag.PendingShipments)
+                            {
+                                <li class="mb-1">
+                                    <strong>@shipment.Origin</strong> → <strong>@shipment.Destination</strong>
+                                    (Deadline: @shipment.DeliveryDeadline.ToString("dd MMM"))
+
+                                    <a asp-controller="Shipments" asp-action="Recommend" asp-route-id="@shipment.Id"
+                                           class="ms-2">
+                                        Recommend Trip
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="border rounded p-3 bg-light">
+                        No pending shipment recommendations.
+                    </div>
+                }
 
             </div>
         </div>
@@ -95,7 +126,15 @@
 
                 <div class="d-flex justify-content-between">
                     <span>Recommendation Engine</span>
-                    <span class="badge bg-secondary-subtle text-secondary">Idle</span>
+
+                    @if (ViewBag.RecommendationStatus == "Active")
+                    {
+                        <span class="badge bg-warning text-dark">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success-subtle text-success">Idle</span>
+                    }
                 </div>
 
             </div>

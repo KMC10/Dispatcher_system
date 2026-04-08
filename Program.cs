@@ -5,14 +5,14 @@ using DHLManagementSystem.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // =========================
-// Database Configuration
+// Database Configuration (PostgreSQL)
 // =========================
 var connectionString = builder.Configuration
-    .GetConnectionString("ApplicationDbContextConnection")
-    ?? throw new InvalidOperationException("Connection string not found.");
+    .GetConnectionString("PostgresConnection") // Make sure your appsettings.json has this
+    ?? throw new InvalidOperationException("Connection string 'PostgresConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString)); // <-- PostgreSQL
 
 // =========================
 // Identity Configuration
@@ -22,8 +22,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
-// .AddDefaultUI(); // Not needed for .NET 8 without Identity.UI
+.AddDefaultTokenProviders()
+.AddDefaultUI(); // required if using Identity Razor Pages
 
 // =========================
 // MVC + Razor Pages
@@ -78,50 +78,58 @@ static async Task SeedRolesAndDispatcherAsync(IServiceProvider services)
     using var scope = services.CreateScope();
     var sp = scope.ServiceProvider;
 
-    var context = sp.GetRequiredService<ApplicationDbContext>();
-    var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = sp.GetRequiredService<UserManager<IdentityUser>>();
-
-    // Apply pending migrations
-    await context.Database.MigrateAsync();
-
-    // Define roles
-    string[] roles = { "Dispatcher", "Driver" };
-
-    foreach (var role in roles)
+    try
     {
-        if (!await roleManager.RoleExistsAsync(role))
-            await roleManager.CreateAsync(new IdentityRole(role));
-    }
+        var context = sp.GetRequiredService<ApplicationDbContext>();
+        var roleManager = sp.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = sp.GetRequiredService<UserManager<IdentityUser>>();
 
-    // Create Dispatcher account
-    string dispatcherEmail = "dispatcher@example.com"; // change this to your email
-    string dispatcherPassword = "StrongPassword123!";  // change this to your desired password
+        // Apply pending migrations
+        await context.Database.MigrateAsync();
 
-    var user = await userManager.FindByEmailAsync(dispatcherEmail);
+        // Define roles
+        string[] roles = { "Dispatcher", "Driver" };
 
-    if (user == null)
-    {
-        user = new IdentityUser
+        foreach (var role in roles)
         {
-            UserName = dispatcherEmail,
-            Email = dispatcherEmail,
-            EmailConfirmed = true
-        };
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
+        }
 
-        var result = await userManager.CreateAsync(user, dispatcherPassword);
+        // Create Dispatcher account
+        string dispatcherEmail = "dispatcher@example.com"; // change this
+        string dispatcherPassword = "StrongPassword123!";  // change this
 
-        if (!result.Succeeded)
+        var user = await userManager.FindByEmailAsync(dispatcherEmail);
+
+        if (user == null)
         {
-            foreach (var error in result.Errors)
-                Console.WriteLine($"Error creating user: {error.Description}");
+            user = new IdentityUser
+            {
+                UserName = dispatcherEmail,
+                Email = dispatcherEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(user, dispatcherPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    Console.WriteLine($"Error creating user: {error.Description}");
+            }
+        }
+
+        // Ensure the Dispatcher role is assigned
+        if (!await userManager.IsInRoleAsync(user, "Dispatcher"))
+        {
+            await userManager.AddToRoleAsync(user, "Dispatcher");
+            Console.WriteLine("Dispatcher account created and assigned role successfully!");
         }
     }
-
-    // Ensure the Dispatcher role is assigned
-    if (!await userManager.IsInRoleAsync(user, "Dispatcher"))
+    catch (Exception ex)
     {
-        await userManager.AddToRoleAsync(user, "Dispatcher");
-        Console.WriteLine("Dispatcher account created and assigned role successfully!");
+        Console.WriteLine($"Error during seeding: {ex.Message}");
+        throw;
     }
 }

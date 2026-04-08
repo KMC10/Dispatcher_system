@@ -16,7 +16,7 @@
     </div>
 
     <div>
-        <button class="btn btn-outline-dark me-2" onclick="showKanban()">Kanban View</button>
+        @* <button class="btn btn-outline-dark me-2" onclick="showKanban()">Kanban View</button> *@
         <button class="btn btn-dark" onclick="showTable()">Table View</button>
         <a asp-action="Create" class="btn btn-secondary ms-3">
             + New Shipment
@@ -25,11 +25,11 @@
 </div>
 
 <!-- ===================== KANBAN BOARD ===================== -->
+@*
 <div id="kanbanView" class="mb-5">
 
     <div class="row g-4">
 
-        @* Column Template *@
         @foreach (var column in new[] {
             new { Title = "Pending", Data = pending },
             new { Title = "Assigned", Data = assigned },
@@ -88,6 +88,7 @@
     </div>
 
 </div>
+*@
 
 <!-- ===================== TABLE VIEW ===================== -->
 <div id="tableView">
@@ -183,17 +184,11 @@
 
 @section Scripts {
 <script>
-    function showKanban() {
-        document.getElementById("kanbanView").style.display = "block";
-        document.getElementById("tableView").style.display = "none";
-    }
-
     function showTable() {
-        document.getElementById("kanbanView").style.display = "none";
         document.getElementById("tableView").style.display = "block";
     }
 
     // Default view
-    showKanban();
+    showTable();
 </script>
 }

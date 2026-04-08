@@ -1,0 +1,75 @@
+@model IEnumerable<DHLManagementSystem.Models.Shipment>
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    ViewData["Title"] = "Recommendations";
+}
+
+<h2 class="mb-4">Shipment Recommendations</h2>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Route</th>
+            <th>Weight</th>
+            <th>Deadline</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var shipment in Model)
+        {
+            <tr>
+                <td>@shipment.Id</td>
+                <td>@shipment.Origin → @shipment.Destination</td>
+                <td>@shipment.Weight kg</td>
+                <td>@shipment.DeliveryDeadline:dd MMM HH:mm</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="assignTrip(@shipment.Id)">
+                        Assign Trip
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="recommendationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+     data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Recommendation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="recommendationMessage"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function assignTrip(shipmentId) {
+            fetch(`/Recommendations/Recommend?shipmentId=${shipmentId}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': '@Antiforgery.GetAndStoreTokens(Context).RequestToken'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("recommendationMessage").innerText = data.message;
+                    var modal = new bootstrap.Modal(document.getElementById('recommendationModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+}
